@@ -128,14 +128,20 @@ public class AfipBTemplate implements ReceiptTemplate {
         }
         p.escpos().writeLF(Columns.line(W, '-'));
 
-        // Pagos
+        // Pagos detallados
         BigDecimal sumPagos = BigDecimal.ZERO;
-        for (Payment pm : r.getPayments()) sumPagos = sumPagos.add(pm.getAmount());
-        p.escpos().writeLF(left, "Pago " + r.getPayments().get(0).getMethod().name());
-        p.escpos().writeLF(right, money(cfg, sumPagos));
+        for (Payment pm : r.getPayments()) {
+            p.escpos().writeLF(left, "Pago " + pm.getMethod().name());
+            p.escpos().writeLF(right, money(cfg, pm.getAmount()));
+            sumPagos = sumPagos.add(pm.getAmount());
+        }
+
+        // Línea final de control
+        p.escpos().writeLF(Columns.line(W, '-'));
         p.escpos().writeLF(left, "Suma de sus pagos");
         p.escpos().writeLF(right, money(cfg, sumPagos));
         p.escpos().writeLF(Columns.line(W, '-'));
+
 
         // QR (CAE/link configurable)
         if (cfg.qr.enabled && cfg.qr.data != null && !cfg.qr.data.isEmpty()) {
