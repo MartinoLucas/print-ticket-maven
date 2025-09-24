@@ -1,0 +1,26 @@
+{
+  "storeName": "CUARTA GENERACION VINOS",
+  "address": "Aparicio 125 - Junin (B)",
+  "phone": "2364360402",
+  "pvNumber": "00001",
+  "invoiceLabel": "Factura B (Cod. 006)",
+  "currency": "$",
+  "paper": {
+    "widthChars": 42,
+    "feedLinesBeforeCut": 5,
+    "cutMode": "TOTAL"
+  },
+  "qr": {
+    "enabled": true,
+    "data": "https://www.instagram.com/4gvinos",
+    "size": 6
+  },
+  "footer": {
+    "legalNote": "LOS IMPUESTOS INFORMADOS SON SOLO LOS QUE CORRESPONDEN A NIVEL NACIONAL"
+  },
+  "logo": {
+    "path": "/logo.jpg",
+    "maxWidth": 200
+  }
+
+}
