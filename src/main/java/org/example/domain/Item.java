@@ -22,7 +22,25 @@ public class Item {
     public BigDecimal getQuantity() { return quantity; }
     public BigDecimal getUnitPrice() { return unitPrice; }
     public BigDecimal getTaxRate() { return taxRate; }
-    public BigDecimal lineNet() { return unitPrice.multiply(quantity); }
-    public BigDecimal lineTax() { return lineNet().multiply(taxRate).setScale(2, RoundingMode.HALF_UP); }
-    public BigDecimal lineTotal() { return lineNet().add(lineTax()); }
+    // Total del renglón CON IVA incluido (precio final * cantidad)
+    public BigDecimal lineTotalWithIva() {
+        return unitPrice.multiply(quantity);
+    }
+
+    // Neto del renglón (desglosado desde el total con IVA)
+    public BigDecimal lineNet() {
+        return lineTotalWithIva()
+                .divide(BigDecimal.ONE.add(taxRate), 2, RoundingMode.HALF_UP);
+    }
+
+    // IVA del renglón (total con IVA - neto)
+    public BigDecimal lineTax() {
+        return lineTotalWithIva().subtract(lineNet());
+    }
+
+    // Total del renglón (con IVA) — para compatibilidad
+    public BigDecimal lineTotal() {
+        return lineTotalWithIva();
+    }
+
 }

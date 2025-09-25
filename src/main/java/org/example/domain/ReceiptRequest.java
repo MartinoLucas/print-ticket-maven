@@ -1,33 +1,74 @@
 package org.example.domain;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class ReceiptRequest {
-    private final String customerName;   // "Consumidor final", etc.
-    private final String customerDoc;    // DNI/CUIT si aplica
-    private final String posNumber;      // PV
-    private final String invoiceNumber;  // Nro comprobante
-    private final LocalDateTime dateTime;
+    private final String customerName;
+    private final String customerDoc;
+    private final String customerAddress;   // 🆕 Dirección del cliente
+    private final String customerIvaCondition; // 🆕 Condición frente al IVA (ej: "Consumidor Final", "IVA Responsable Inscripto")
+
+    private final String pvNumber;          // Punto de venta
+    private final String invoiceNumber;     // Número de factura
+    private final LocalDateTime dateTime;   // Fecha y hora de emisión
+
     private final List<Item> items;
     private final List<Payment> payments;
 
-    public ReceiptRequest(String customerName, String customerDoc, String posNumber,
-                          String invoiceNumber, LocalDateTime dateTime,
-                          List<Item> items, List<Payment> payments) {
+    private final String cae;        // Código de autorización
+    private final String caeDueDate; // Fecha de vencimiento del CAE
+
+    // 🔹 Descuentos
+    private final BigDecimal discountValue;   // valor fijo en pesos
+    private final BigDecimal discountPercent; // porcentaje (ej 0.10 para 10%)
+
+    public ReceiptRequest(String customerName,
+                          String customerDoc,
+                          String customerAddress,
+                          String customerIvaCondition,
+                          String pvNumber,
+                          String invoiceNumber,
+                          LocalDateTime dateTime,
+                          List<Item> items,
+                          List<Payment> payments, String cae, String caeDueDate,
+                          BigDecimal discountValue,
+                          BigDecimal discountPercent) {
         this.customerName = customerName;
         this.customerDoc = customerDoc;
-        this.posNumber = posNumber;
+        this.customerAddress = customerAddress != null ? customerAddress : "";
+        this.customerIvaCondition = customerIvaCondition != null ? customerIvaCondition : "A CONSUMIDOR FINAL";
+
+        this.pvNumber = pvNumber;
         this.invoiceNumber = invoiceNumber;
         this.dateTime = dateTime;
         this.items = items;
         this.payments = payments;
+        this.cae = cae;
+        this.caeDueDate = caeDueDate;
+
+        this.discountValue = discountValue != null ? discountValue : BigDecimal.ZERO;
+        this.discountPercent = discountPercent != null ? discountPercent : BigDecimal.ZERO;
     }
+
+    // ===== Getters =====
     public String getCustomerName() { return customerName; }
     public String getCustomerDoc() { return customerDoc; }
-    public String getPosNumber() { return posNumber; }
+    public String getCustomerAddress() { return customerAddress; }
+    public String getCustomerIvaCondition() { return customerIvaCondition; }
+
+    public String getPvNumber() { return pvNumber; }
     public String getInvoiceNumber() { return invoiceNumber; }
     public LocalDateTime getDateTime() { return dateTime; }
+
     public List<Item> getItems() { return items; }
     public List<Payment> getPayments() { return payments; }
+
+    public BigDecimal getDiscountValue() { return discountValue; }
+    public BigDecimal getDiscountPercent() { return discountPercent; }
+
+    public String getCae() { return cae; }
+    public String getCaeDueDate() { return caeDueDate; }
+
 }

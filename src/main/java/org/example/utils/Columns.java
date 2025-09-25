@@ -1,4 +1,4 @@
-package org.example.util;
+package org.example.utils;
 
 public class Columns {
     // Devuelve una línea con descripción izquierda y valor derecha ajustado al ancho

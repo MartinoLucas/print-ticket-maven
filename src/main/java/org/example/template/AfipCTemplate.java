@@ -19,9 +19,10 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.format.DateTimeFormatter;
 
-public class AfipBTemplate implements ReceiptTemplate {
+public class AfipCTemplate implements ReceiptTemplate {
 
     @Override
     public void print(EscPosCoffeePrinter p, AppConfig cfg, ReceiptRequest r, ReceiptTotals t) throws Exception {
@@ -63,21 +64,18 @@ public class AfipBTemplate implements ReceiptTemplate {
                         .setJustification(EscPosConst.Justification.Center),
                 cfg.emitter.businessName
         );
-        // ===== ENCABEZADO AFIP =====
+        // ===== ENCABEZADO =====
         p.escpos().writeLF(Columns.line(W, '='));
-        // Emisor
         p.escpos().writeLF(left, cfg.emitter.businessName);
         p.escpos().writeLF(left, cfg.emitter.address);
-        p.escpos().writeLF(left, cfg.emitter.ivaCondition);
-
-        // Datos fiscales
+        p.escpos().writeLF(left, "IVA Responsable Monotributo");
         p.escpos().writeLF(right, "CUIT: " + cfg.emitter.cuit);
         p.escpos().writeLF(right, "Ing.Brutos: " + cfg.emitter.iibb);
         p.escpos().writeLF(right, "Inicio Act.: " + cfg.emitter.activityStart);
 
         // Tipo de comprobante
-        p.escpos().writeLF(boldCenter, "********** " + cfg.invoiceLabel + " **********");
-        p.escpos().writeLF(center, "Código " + cfg.invoiceCode);
+        p.escpos().writeLF(boldCenter, "********** FACTURA C **********");
+        p.escpos().writeLF(center, "Código 011");
 
         // Numeración + fecha
         p.escpos().writeLF(center, "P.V. " + cfg.pvNumber + " - N° " + r.getInvoiceNumber());
@@ -100,7 +98,7 @@ public class AfipBTemplate implements ReceiptTemplate {
 
         // ===== ÍTEMS =====
         for (Item it : r.getItems()) {
-            String l1 = it.getQuantity() + " x " + money(cfg, it.getUnitPrice()) + "  " + it.getDescription();
+            String l1 = it.getQuantity() + " x " + money(cfg, it.getUnitPrice()) + " (" + it.getTaxRate().multiply(new BigDecimal("100")).setScale(2, RoundingMode.HALF_UP) + ")" + "  " + it.getDescription();
             p.escpos().writeLF(left, l1);
             String l2 = Columns.lr("", money(cfg, it.lineTotalWithIva()), W);
             p.escpos().writeLF(right, l2);
@@ -109,7 +107,7 @@ public class AfipBTemplate implements ReceiptTemplate {
         }
         p.escpos().writeLF(Columns.line(W, '-'));
 
-        // ===== TOTALES =====
+        // ===== TOTALES (solo totales, sin IVA) =====
         p.escpos().writeLF(boldRight, Columns.lr("SUBTOTAL", money(cfg, t.getSubtotal()), W));
         if (t.getDiscountAmount() != null && t.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
             String label = (t.getDiscountLabel() != null && !t.getDiscountLabel().isEmpty())
@@ -131,22 +129,13 @@ public class AfipBTemplate implements ReceiptTemplate {
         p.escpos().writeLF(boldRight, Columns.lr("TOTAL PAGADO", money(cfg, sumPagos), W));
         p.escpos().writeLF(Columns.line(W, '-'));
 
-        // ===== IVA =====
-        p.escpos().writeLF(left, "Régimen de Transparencia Fiscal al Consumidor (Ley 27.743)");
-        p.escpos().writeLF(left, Columns.lr("IVA Contenido", money(cfg, t.getTax()), W));
-        for (var e : t.getTaxBreakdown().entrySet()) {
-            p.escpos().writeLF(left, Columns.lr(e.getKey(), money(cfg, e.getValue()), W));
-        }
-
         // ===== CAE y Vto =====
-        p.escpos().writeLF(Columns.line(W, '-'));
         if (r.getCae() != null && !r.getCae().isEmpty()) {
             p.escpos().writeLF(left, "C.A.E. N°: " + r.getCae());
         }
         if (r.getCaeDueDate() != null && !r.getCaeDueDate().isEmpty()) {
             p.escpos().writeLF(left, "Fecha Vto.: " + r.getCaeDueDate());
         }
-
 
         // ===== QR =====
         if (cfg.qr.enabled && cfg.qr.data != null && !cfg.qr.data.isEmpty()) {
@@ -175,7 +164,6 @@ public class AfipBTemplate implements ReceiptTemplate {
         if (w <= maxWidth) return img;
         int newW = maxWidth;
         int newH = (h * maxWidth) / w;
-
         Image tmp = img.getScaledInstance(newW, newH, Image.SCALE_SMOOTH);
         BufferedImage resized = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB);
         Graphics2D g2d = resized.createGraphics();
