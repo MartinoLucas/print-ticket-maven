@@ -57,7 +57,7 @@ public class AfipBTemplate implements ReceiptTemplate {
                     p.escpos().write(imageWrapper, escposImage);
 
                     // ⚡ separá el bloque gráfico y “pateá” a modo texto
-                    p.escpos().feed(2);
+//                    p.escpos().feed(2);
                     p.escpos().writeLF(new Style(), " ");  // línea en blanco en modo texto
                     p.escpos().setStyle(new Style());      // reset estilo
                 }
@@ -111,10 +111,23 @@ public class AfipBTemplate implements ReceiptTemplate {
         }
         p.escpos().writeLF(Columns.line(W, '-'));
 
-        // Subtotal/Total
+        // Subtotal / Total bruto
         p.escpos().writeLF(boldR, Columns.lr("SUBTOTAL", money(cfg, t.getNet()), W));
-        p.escpos().writeLF(boldR, Columns.lr("TOTAL",    money(cfg, t.getTotal()), W));
+        p.escpos().writeLF(boldR, Columns.lr("TOTAL BRUTO", money(cfg, t.getTotal()), W));
+
+        // Si hay descuento, mostrarlo
+        if (t.getDiscountAmount() != null && t.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
+            String label = (t.getDiscountLabel() != null && !t.getDiscountLabel().isEmpty())
+                    ? "DESCUENTO " + t.getDiscountLabel()
+                    : "DESCUENTO";
+            p.escpos().writeLF(boldR, Columns.lr(label, "-" + money(cfg, t.getDiscountAmount()), W));
+        }
+
+
+        // Total final (después de descuentos)
+        p.escpos().writeLF(boldR, Columns.lr("TOTAL FINAL", money(cfg, t.getFinalTotal()), W));
         p.escpos().writeLF(Columns.line(W, '-'));
+
 
         // Transparencia / IVA
         BigDecimal ivaContenido = t.getTax();

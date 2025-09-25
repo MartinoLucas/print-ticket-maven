@@ -30,7 +30,7 @@ public class PrintController {
 
             // 2) Calcular totales
             TotalsCalculator calc = new TotalsCalculator();
-            ReceiptTotals totals = calc.compute(request.getItems());
+            ReceiptTotals totals = calc.compute(request);
 
             // 3) Inicializar impresora
             EscPosCoffeePrinter printer = PrinterFactory.create(cfg.printer);
