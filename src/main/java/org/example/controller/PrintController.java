@@ -10,6 +10,8 @@ import org.example.printer.EscPosCoffeePrinter;
 import org.example.printer.PrinterFactory;
 import org.example.service.TotalsCalculator;
 import org.example.template.AfipBTemplate;
+import org.example.template.AfipCTemplate;
+import org.example.template.InfoTemplate;
 import org.example.template.ReceiptTemplate;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +23,8 @@ import java.util.List;
 @RequestMapping("/api/print")
 public class PrintController {
 
-    @PostMapping
-    public String printTicket(@RequestBody ReceiptRequest request) {
+    @PostMapping("/B")
+    public String printTicketB(@RequestBody ReceiptRequest request) {
         try {
             // 1) Configuración desde config.json
             ObjectMapper om = new ObjectMapper();
@@ -37,6 +39,62 @@ public class PrintController {
 
             // 4) Template
             ReceiptTemplate tpl = new AfipBTemplate();
+            tpl.print(printer, cfg, request, totals);
+
+            // 5) Cerrar
+            printer.close();
+
+            return "✅ Ticket impreso correctamente";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "❌ Error imprimiendo: " + e.getMessage();
+        }
+    }
+
+    @PostMapping("/C")
+    public String printTicketC(@RequestBody ReceiptRequest request) {
+        try {
+            // 1) Configuración desde config.json
+            ObjectMapper om = new ObjectMapper();
+            AppConfig cfg = om.readValue(new File("config.json"), AppConfig.class);
+
+            // 2) Calcular totales
+            TotalsCalculator calc = new TotalsCalculator();
+            ReceiptTotals totals = calc.compute(request);
+
+            // 3) Inicializar impresora
+            EscPosCoffeePrinter printer = PrinterFactory.create(cfg.printer);
+
+            // 4) Template
+            ReceiptTemplate tpl = new AfipCTemplate();
+            tpl.print(printer, cfg, request, totals);
+
+            // 5) Cerrar
+            printer.close();
+
+            return "✅ Ticket impreso correctamente";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "❌ Error imprimiendo: " + e.getMessage();
+        }
+    }
+
+    @PostMapping("/info")
+    public String printTicketInfo(@RequestBody ReceiptRequest request) {
+        try {
+            // 1) Configuración desde config.json
+            ObjectMapper om = new ObjectMapper();
+            AppConfig cfg = om.readValue(new File("config.json"), AppConfig.class);
+
+            // 2) Calcular totales
+            TotalsCalculator calc = new TotalsCalculator();
+            ReceiptTotals totals = calc.compute(request);
+
+            // 3) Inicializar impresora
+            EscPosCoffeePrinter printer = PrinterFactory.create(cfg.printer);
+
+            // 4) Template
+            ReceiptTemplate tpl = new InfoTemplate();
             tpl.print(printer, cfg, request, totals);
 
             // 5) Cerrar

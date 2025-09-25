@@ -17,6 +17,9 @@ public class ReceiptRequest {
     private final List<Item> items;
     private final List<Payment> payments;
 
+    private final String cae;        // Código de autorización
+    private final String caeDueDate; // Fecha de vencimiento del CAE
+
     // 🔹 Descuentos
     private final BigDecimal discountValue;   // valor fijo en pesos
     private final BigDecimal discountPercent; // porcentaje (ej 0.10 para 10%)
@@ -29,7 +32,7 @@ public class ReceiptRequest {
                           String invoiceNumber,
                           LocalDateTime dateTime,
                           List<Item> items,
-                          List<Payment> payments,
+                          List<Payment> payments, String cae, String caeDueDate,
                           BigDecimal discountValue,
                           BigDecimal discountPercent) {
         this.customerName = customerName;
@@ -42,6 +45,8 @@ public class ReceiptRequest {
         this.dateTime = dateTime;
         this.items = items;
         this.payments = payments;
+        this.cae = cae;
+        this.caeDueDate = caeDueDate;
 
         this.discountValue = discountValue != null ? discountValue : BigDecimal.ZERO;
         this.discountPercent = discountPercent != null ? discountPercent : BigDecimal.ZERO;
@@ -62,4 +67,8 @@ public class ReceiptRequest {
 
     public BigDecimal getDiscountValue() { return discountValue; }
     public BigDecimal getDiscountPercent() { return discountPercent; }
+
+    public String getCae() { return cae; }
+    public String getCaeDueDate() { return caeDueDate; }
+
 }

@@ -17,11 +17,6 @@
     "activityStart": "01/01/2020"
   },
 
-  "authorization": {
-    "code": "72456382915347",
-    "expiration": "30/09/2025"
-  },
-
   "paper": {
     "widthChars": 42,
     "feedLinesBeforeCut": 5,

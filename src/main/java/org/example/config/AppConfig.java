@@ -41,7 +41,7 @@ public class AppConfig {
     }
 
     public static class Paper {
-        public int widthChars = 48;
+        public int widthChars = 64;
         public int feedLinesBeforeCut = 5;
         public String cutMode = "PART";
     }
